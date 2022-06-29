@@ -1,32 +1,65 @@
 const collegeModel = require("../models/collegeModel")
+const internModel = require("../models/internModel")
 
-
-
-const createCollege = async function(req,res){
-
-    try{
-    let reqBody = req.body
-    let savedData = await collegeModel.create(reqBody)
-    res.status(201).send({status:true , data : savedData})
-    }
-    catch(error){
-        res.status(500).send({status:false , message : error.message})
-    }
-
+const isValid = function(value){
+    if(typeof value === "undefined" || value === null ) return false
+    if(typeof value === "string" || value.trim().length === 0 ) return false
+    return true
 }
 
+const isValidRequestBody = function(requestBody){
+    return Object.keys(requestBody).length == 0
+}
+
+const createCollege = async function(req,res){
+    try{
+    let reqBody = req.body
+
+    if(isValidRequestBody(reqBody)) return res.status(400).send({status: false, message: "Please Provide College Data"})
+    
+    if(isValid(reqBody.name)) return res.status(400).send({status: false, message: "Please Enter College Name"})
+    
+    if(isValid(reqBody.fullName)) return res.status(400).send({status: false, message: "Please Enter College Full Name"})
+
+    if(isValid(reqBody.logoLink)) return res.status(400).send({status: false, message: "Please Enter College Logo Link"})
+
+    let checkIfCollegeIsPresent = await collegeModel.findOne({name: reqBody.name})
+    if(checkIfCollegeIsPresent)return res.status(400).send({status: false, message: `${checkIfCollegeIsPresent.name} this college name already exists, please enter anothor name`})
+    
+    let savedData = await collegeModel.create(reqBody)
+    res.status(201).send({status:true, data : savedData})
+    }
+    catch(error){
+        res.status(500).send({status:false, message: error.message})
+    }
+}
 
 const collegeDetails = async function (req,res){
     try{
-        let name = req.query.name
-        let collegeData = await collegeModel.find({name})
-        res.status(200).send({status:true , data:collegeData})
-        console.log(collegeData)
+        let collegeName = req.query.name
+        console.log(typeof collegeName)
+
+        if(collegeName){
+            let collegeData = await collegeModel.findOne({name: collegeName})
+   
+            let resultObject= {
+                name: collegeData.name,
+                fullName: collegeData.fullName,
+                logoLink: collegeData.logoLink
+            }
+            // let id = collegeData._id
+            let internsDetails = await internModel.find({collegeId: collegeData._id})
+        
+            resultObject.interns= internsDetails
+   
+            res.status(200).send({ status: true, data: resultObject})
+        }else{
+            res.status(400).send({ status: false, message: "Please Provide College Name to Get Details..."}) 
+        }
     }
     catch(error){
-        res.status(500).send({status:false , message : error.message})
+        res.status(500).send({ status: false, message: error.message})
     }
 } 
-
 
 module.exports= {createCollege , collegeDetails}
