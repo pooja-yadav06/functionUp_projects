@@ -1,9 +1,9 @@
 const collegeModel = require("../models/collegeModel")
 const internModel = require("../models/internModel")
 
-const isValid = function(value){
-    if(typeof value === "undefined" || value === null ) return false
-    if(typeof value === "string" || value.trim().length === 0 ) return false
+const isValid = function (value) {
+    if (!value || value === "undefined" || value === null) return false
+    if (typeof value !== "string" || value.trim().length === 0) return false
     return true
 }
 
@@ -13,23 +13,23 @@ const isValidRequestBody = function(requestBody){
 
 const createCollege = async function(req,res){
     try{
-    let reqBody = req.body
+        let reqBody = req.body
 
-    if(isValidRequestBody(reqBody)) return res.status(400).send({status: false, message: "Please Provide College Data"})
+        if(isValidRequestBody(reqBody)) return res.status(400).send({status: false, message: "Please Provide College Data"})
     
-    if(isValid(reqBody.name)) return res.status(400).send({status: false, message: "Please Enter College Name"})
+        if(!isValid(reqBody.name)) return res.status(400).send({status: false, message: "Please Enter College Name"})
     
-    if(isValid(reqBody.fullName)) return res.status(400).send({status: false, message: "Please Enter College Full Name"})
+        if(!isValid(reqBody.fullName)) return res.status(400).send({status: false, message: "Please Enter College Full Name"})
 
-    if(isValid(reqBody.logoLink)) return res.status(400).send({status: false, message: "Please Enter College Logo Link"})
+        if(!isValid(reqBody.logoLink)) return res.status(400).send({status: false, message: "Please Enter College Logo Link"})
 
-    let checkIfCollegeIsPresent = await collegeModel.findOne({name: reqBody.name})
-    if(checkIfCollegeIsPresent)return res.status(400).send({status: false, message: `${checkIfCollegeIsPresent.name} this college name already exists, please enter anothor name`})
+        let checkIfCollegeIsPresent = await collegeModel.findOne({name: reqBody.name})
+        
+        if(checkIfCollegeIsPresent)return res.status(400).send({status: false, message: `${checkIfCollegeIsPresent.name} this college name already exists, please enter anothor name`})
     
-    let savedData = await collegeModel.create(reqBody)
-    res.status(201).send({status:true, data : savedData})
-    }
-    catch(error){
+        let savedData = await collegeModel.create(reqBody)
+        res.status(201).send({status:true, data : savedData})
+    } catch(error){
         res.status(500).send({status:false, message: error.message})
     }
 }
@@ -37,18 +37,19 @@ const createCollege = async function(req,res){
 const collegeDetails = async function (req,res){
     try{
         let collegeName = req.query.name
-        console.log(typeof collegeName)
 
         if(collegeName){
             let collegeData = await collegeModel.findOne({name: collegeName})
-   
+
+            if(!collegeData) return res.status(404).send({status:false , message: `${collegeName} College Name not found. Please enter a valid college name` })  
+
             let resultObject= {
                 name: collegeData.name,
                 fullName: collegeData.fullName,
                 logoLink: collegeData.logoLink
             }
             // let id = collegeData._id
-            let internsDetails = await internModel.find({collegeId: collegeData._id})
+            let internsDetails = await internModel.find({collegeId: collegeData._id}).select({name:1, email:1, mobile:1})
         
             resultObject.interns= internsDetails
    
@@ -56,8 +57,7 @@ const collegeDetails = async function (req,res){
         }else{
             res.status(400).send({ status: false, message: "Please Provide College Name to Get Details..."}) 
         }
-    }
-    catch(error){
+    } catch(error){
         res.status(500).send({ status: false, message: error.message})
     }
 } 

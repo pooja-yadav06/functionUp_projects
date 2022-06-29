@@ -4,13 +4,16 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 const internSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        trim:true
     },
 
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim:true,
+        lowercase:true
     },
 
     mobile: {
@@ -29,6 +32,5 @@ const internSchema = new mongoose.Schema({
         default: false
     }
 })
-
 
 module.exports = mongoose.model("Intern", internSchema)
