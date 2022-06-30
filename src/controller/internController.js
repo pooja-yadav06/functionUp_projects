@@ -3,7 +3,7 @@ const internModel = require("../models/internModel")
 const ObjectId = require('mongoose').Types.ObjectId
 
 const isValid = function (value) {
-    if (!value || value === "undefined" || value === null) return false
+    if ( value === "undefined" || value === null) return false
     if (typeof value !== "string" || value.trim().length === 0) return false
     return true
 }
