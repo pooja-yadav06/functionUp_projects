@@ -1,5 +1,6 @@
 const internModel = require("../models/internModel")
 // const collegeController = require("./collegeController")
+const ObjectId = require('mongoose').Types.ObjectId
 
 const isValid = function (value) {
     if (!value || value === "undefined" || value === null) return false
@@ -37,7 +38,11 @@ const createIntern = async function (req, res) {
         let checkIfNumberIsPresent = await internModel.findOne({ mobile: reqBody.mobile })
         if (checkIfNumberIsPresent) return res.status(400).send({ status: false, message: `${checkIfNumberIsPresent.mobile} this Number already exists, please enter anothor Number` })
 
-        let savedIntern = await (await internModel.create(reqBody))
+        if (!ObjectId.isValid(reqBody.collegeId)) { // returns boolean. if not true than return invalid
+            return res.status(400).send({ status: false, msg: "Bad Request. CollegeId invalid" })
+        }
+
+        let savedIntern = await internModel.create(reqBody)
         res.status(201).send({ status: true, data: savedIntern })
     } catch (error) {
         console.log(error)
