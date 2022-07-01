@@ -1,3 +1,4 @@
+const collegeModel = require("../models/collegeModel")
 const internModel = require("../models/internModel")
 // const collegeController = require("./collegeController")
 const ObjectId = require('mongoose').Types.ObjectId
@@ -20,6 +21,8 @@ const createIntern = async function (req, res) {
 
         if (!isValid(reqBody.name)) return res.status(400).send({ status: false, message: "Please Enter Your Name" })
 
+        if(!(/^[a-zA-Z ]{2,30}$/).test(reqBody.name)) return res.status(400).send({ status: false, message: "Name should be in a Valid Format" })
+
         if (!isValid(reqBody.email)) return res.status(400).send({ status: false, message: "Please Enter Your Email" })
 
         if (!reqBody.mobile) return res.status(400).send({ status: false, message: "Please Enter Your Number" })
@@ -38,11 +41,22 @@ const createIntern = async function (req, res) {
         let checkIfNumberIsPresent = await internModel.findOne({ mobile: reqBody.mobile })
         if (checkIfNumberIsPresent) return res.status(400).send({ status: false, message: `${checkIfNumberIsPresent.mobile} this Number already exists, please enter anothor Number` })
 
-        if (!ObjectId.isValid(reqBody.collegeId)) { // returns boolean. if not true than return invalid
-            return res.status(400).send({ status: false, msg: "Bad Request. CollegeId invalid" })
+        if (!isValid(reqBody.collegeName)) { // returns boolean. if not true than return invalid
+            return res.status(400).send({ status: false, msg: "Please Provide College Name" })
         }
 
-        let savedIntern = await internModel.create(reqBody)
+        let collegeData= await collegeModel.findOne({name: reqBody.collegeName})
+        if(!collegeData) return res.status(404).send({status: false, message: `${reqBody.collegeName} this college name is not present in database`})
+
+        let resultObject = {
+            isDeleted: false,
+            name: reqBody.name,
+            email: reqBody.email,
+            mobile: reqBody.mobile,
+            collegeId: collegeData._id
+        }
+
+        let savedIntern = await internModel.create(resultObject)
         res.status(201).send({ status: true, data: savedIntern })
     } catch (error) {
         console.log(error)

@@ -36,12 +36,12 @@ const createCollege = async function(req,res){
 
 const collegeDetails = async function (req,res){
     try{
-        let collegeName = req.query.name
+        let nameOfCollege = req.query.collegeName
 
-        if(collegeName){
-            let collegeData = await collegeModel.findOne({name: collegeName})
+        if(nameOfCollege){
+            let collegeData = await collegeModel.findOne({name: nameOfCollege})
 
-            if(!collegeData) return res.status(404).send({status:false , message: `${collegeName} College Name not found. Please enter a valid college name` })  
+            if(!collegeData) return res.status(404).send({status:false , message: `${nameOfCollege} College Name not found. Please enter a valid college name` })  
 
             let resultObject= {
                 name: collegeData.name,
@@ -57,7 +57,6 @@ const collegeDetails = async function (req,res){
             resultObject.interns= internsDetails
            
             res.status(200).send({ status: true, data: resultObject})
-
            
         }else{
             res.status(400).send({ status: false, message: "Please Provide College Name to Get Details..."}) 
