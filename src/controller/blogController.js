@@ -35,8 +35,8 @@ const createBlog = async function (req, res) {
 
         //===================================objectId validation===================
         console.log(authorId)
-     
-        if (!authorId || authorId===undefined) return res.status(400).send({ status: false, msg: "autorId is required" })
+        // authorId = data.authorId
+        if (authorId===undefined) return res.status(400).send({ status: false, msg: "autorId is required" })
         var isValid = mongoose.Types.ObjectId.isValid(authorId)
         if (!isValid) return res.status(400).send({ status: false, msg: "Enter valid id" })
         let id = await authorModel.findById({ _id: authorId})
@@ -153,8 +153,8 @@ const getBlogs = async function (req, res) {
 const updateBlog = async function (req, res) {
     try {
         let blogId = req.params.blogId;
-        var isValid = mongoose.Types.ObjectId.isValid(blogId)
-        if (!isValid) return res.status(400).send({ status: false, msg: "Enter valid id" })
+        // var isValid = mongoose.Types.ObjectId.isValid(blogId)
+        // if (!isValid) return res.status(400).send({ status: false, msg: "Enter valid id" })
 
         let saveData = await blogModel.findById(blogId)
         if (!saveData) return res.status(404).send({ status: false, msg: "blog not exist's " })
@@ -236,9 +236,9 @@ const updateBlog = async function (req, res) {
 const deleteBlogs = async function (req, res) {
     try {
         let blogId = req.params.blogId
-        console.log(blogId)
-        var isValid = mongoose.Types.ObjectId.isValid(blogId)
-        if (!isValid) return res.status(400).send({ status: false, msg: "enter valid id" })
+        // console.log(blogId)
+        // var isValid = mongoose.Types.ObjectId.isValid(blogId)
+        // if (!isValid) return res.status(400).send({ status: false, msg: "enter valid id" })
         let id = await blogModel.findById(blogId)
         if (id) {
             let updateBlog = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true }, { new: true })

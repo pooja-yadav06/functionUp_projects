@@ -13,6 +13,7 @@ const createAuthor = async function (req, res) {
     try {
         let authorData = req.body
         const { fname, lname, title, email, password } = authorData
+        if(Object.keys(authorData).length<1) {return res.status(400).send({msg:"Insert data :Bad request"})}
 
 
         // //==========fname validation...............
