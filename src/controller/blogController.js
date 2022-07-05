@@ -34,17 +34,7 @@ const createBlog = async function (req, res) {
         let body1 = /\w*\s*|\w|\D/.test(body.trim())
         if (!body1) return res.status(400).send({ stats: true, msg: "enter valid body" })
 
-        //===================================objectId validation===================
-        // console.log(authorId)
-        // // authorId = data.authorId
-        // if (authorId===undefined) return res.status(400).send({ status: false, msg: "autorId is required" })
-        // var isValid = mongoose.Types.ObjectId.isValid(authorId)
-        // if (!isValid) return res.status(400).send({ status: false, msg: "Enter valid id" })
-    //     let id = await authorModel.findById({ _id: authorId})
-    //    if (!id) {
-    //         return res.status(404).send({ status: false, msg: "author is not present" })
-    //     }
-
+    
         //====================================tags validation==========================
       
     
@@ -214,9 +204,9 @@ const updateBlog = async function (req, res) {
                 }
             }
         }
-        if (saveData.isDeleted == true) {
-            return res.status(400).send({ status: false, msg: "Blog already deleted" })
-        }
+        // if (saveData.isDeleted == true) {
+        //     return res.status(400).send({ status: false, msg: "Blog already deleted" })
+        // }
         let updatedblog = await blogModel.findByIdAndUpdate({ _id: blogId }, { $addToSet: { tags: tags, subcategory: subcategory }, $set: { title: title, body: body, category: category, isPublished: true, publishedAt: Date.now() } }, { new: true });
 
         res.status(200).send({ status: true, data: updatedblog });
@@ -241,10 +231,13 @@ const deleteBlogs = async function (req, res) {
         // var isValid = mongoose.Types.ObjectId.isValid(blogId)
         // if (!isValid) return res.status(400).send({ status: false, msg: "enter valid id" })
         let id = await blogModel.findById(blogId)
+        let isdeleted=id.isDeleted
+        if(isdeleted){
+        return res.status(400).send({status:false,msg:"data is already deleted"})}
         if (id) {
             let updateBlog = await blogModel.findOneAndUpdate({ _id: blogId }, { isDeleted: true }, { new: true })
             updateBlog.deletedAt=Date.now()
-            res.status(200).send({ status: true,msg:"data is deleted" ,deletedAt:updateBlog.deletedAt})
+            res.status(200).send({ status: true,msg:"data deleted now" ,deletedAt:updateBlog.deletedAt})
         }
         else { res.status(404).send({ msg: "blog not found" }) }
     }
@@ -275,7 +268,7 @@ const deleteUser = async function (req, res) {
         }
         else {
             deletedData.deletedAt=Date.now()
-            res.status(200).send({ status: true, msg: "Data is deleted",deletedAt:deletedData.deletedAt })
+            res.status(200).send({ status: true, msg: "Data deleted now",deletedAt:deletedData.deletedAt })
         }
     }
     catch (err) {

@@ -35,16 +35,23 @@ const mid2 = async function (req, res, next) {
     var isValid = mongoose.Types.ObjectId.isValid(blogToBeModified)
     if (!isValid) return res.status(400).send({ status: false, msg: "enter valid id" })
     let blogData = await blogModel.findById(blogToBeModified)
-    if(!blogData){return res.status(400).send({status:false,msg:"author not found"})}
+    if(!blogData){return res.status(400).send({status:false,msg:"blog not found"})}
     let authId = blogData.authorId
     let userLoggedIn = decodedToken.authoRId
     if (authId == userLoggedIn) {
         next()
     } else { return res.status(403).send({ status: false, msg: 'User logged is not allowed to modify the requested users data' }) }
 }
+catch (error) {
+    res.status(500).send({ msg: error.message })
+}
+}
+
+
 
 
 const mid4 = async function (req, res, next) {
+    try{
      let token = req.headers["x-api-key"];
      if (!token) token = req.headers["x-api-key"];
 
@@ -61,14 +68,17 @@ const mid4 = async function (req, res, next) {
         if (!isValid) return res.status(400).send({ status: false, msg: "Enter valid id" })
     
     let userLoggedIn = decodedToken.authoRId
-    console.log(userLoggedIn)
     if (authorId == userLoggedIn) {
         next()
-    } else { return res.status(403).send({ status: false, msg: 'User logged is not allowed to modify the requested users data' }) }
+    } else { return res.status(403).send({ status: false, msg: 'author must enter his own Id while creating a blog' }) }
+}catch (error) {
+    res.status(500).send({ msg: error.message })
+}
 }
 
 
 const mid3 = async function (req, res, next) {
+    try{
     let token = req.headers["x-api-key"];
     if (!token) token = req.headers["x-api-key"];
 
@@ -96,6 +106,9 @@ const mid3 = async function (req, res, next) {
     }
         next()
     } else { return res.send({ status: false, msg: 'User logged is not allowed to modify the requested users data' }) }
+}catch (error) {
+    res.status(500).send({ msg: error.message })
+}
 }
 
 

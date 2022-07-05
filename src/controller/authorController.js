@@ -72,7 +72,7 @@ const loginAuthor = async function (req, res) {
     try {
         let email = req.body.email;
         let password = req.body.password;
-
+        if(Object.keys(req.body).length<1) {return res.status(400).send({msg:"Insert data :Bad request"})}
         //email validation
 
         if (!isValid(email)) { return res.status(400).send({ status: false, msg: "email is required" }) }
