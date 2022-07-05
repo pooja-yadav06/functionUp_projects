@@ -3,27 +3,34 @@ const jwt = require("jsonwebtoken");
 const blogModel = require("../model/blogModel");
 const mongoose = require('mongoose');
 
-const mid1 = async function (req, res, next) {
-    let token = req.headers["X-Api-Key"];
-    if (!token) token = req.headers["x-api-key"];
 
-    if (token) { 
-        let decodedToken = jwt.verify(token, 'functionup-radon')
-        console.log(decodedToken)
-        if (!decodedToken) return res.send({ status: false, msg: "token is not valid" })
-        next()
+
+const mid1 = function (req, res, next) {
+    try {
+        let token = req.headers["x-api-key"];
+        if (!token) return res.status(400).send({ status: false, msg: "token must be present" });
+        let decodedToken = jwt.verify(token, "functionup-radon", 
+        
+        function(err,decodedToken){
+            if(err)
+            return res.status(401).send({status:false,message:"Token is NOT Valid"})
+
+            next()
+        } );
+        
+    } catch (error) {
+        res.status(500).send({ msg: error.message })
     }
-    else { return res.send({ status: false, msg: "token must be present" }); }
 }
 
-
 const mid2 = async function (req, res, next) {
-    // let token = req.headers["x-api-key"];
-    // if (!token) token = req.headers["x-api-key"];
+    try{
+    let token = req.headers["x-api-key"];
+    if (!token) token = req.headers["x-api-key"];
 
-    // let decodedToken = jwt.verify(token, 'functionup-radon')
+    let decodedToken = jwt.verify(token, 'functionup-radon')
 
-    // if (!decodedToken) return res.send({ status: false, msg: "token is not valid" })
+    if (!decodedToken) return res.send({ status: false, msg: "token is not valid" })
     blogToBeModified = req.params.blogId
     var isValid = mongoose.Types.ObjectId.isValid(blogToBeModified)
     if (!isValid) return res.status(400).send({ status: false, msg: "enter valid id" })
@@ -38,13 +45,16 @@ const mid2 = async function (req, res, next) {
 
 
 const mid4 = async function (req, res, next) {
-    let token = req.headers["x-api-key"];
-    if (!token) token = req.headers["x-api-key"];
+     let token = req.headers["x-api-key"];
+     if (!token) token = req.headers["x-api-key"];
 
-    let decodedToken = jwt.verify(token, 'functionup-radon')
+     let decodedToken = jwt.verify(token, 'functionup-radon')
 
-    if (!decodedToken) return res.status(401).send({ status: false, msg: "token is not valid" })
+     if (!decodedToken) return res.status(401).send({ status: false, msg: "token is not valid" })
     data = req.body
+    if (Object.keys(data).length == 0) {
+        return res.status(400).send({ status: false, msg: "Body should not be Empty.. " })
+    }
     let authorId= data.authorId
     if (!authorId || authorId===undefined) return res.status(400).send({ status: false, msg: "autorId is required" })
         var isValid = mongoose.Types.ObjectId.isValid(authorId)
@@ -75,12 +85,12 @@ const mid3 = async function (req, res, next) {
     let blogData = await blogModel.findOne({$or:[{authorId:authorid},{isPublished:unpublished},{category:Category},{tags:tag},{subcategory:Subcategory}]})
     if(!blogData){return res.status(400).send({status:false,msg:"data not found"})}
     let authId = blogData.authorId
-    console.log(authId)
+    //console.log(authId)
     let userLoggedIn = decodedToken.authoRId
     console.log(userLoggedIn)
     if (authId == userLoggedIn) {
         let del=blogData.isDeleted
-        console.log(del)
+        //console.log(del)
     if(del){
         return res.status(400).send({status:false,msg:"data is already deleted"})
     }

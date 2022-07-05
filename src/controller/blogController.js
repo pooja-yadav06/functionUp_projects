@@ -16,6 +16,7 @@ const createBlog = async function (req, res) {
 
         let data = req.body
         console.log(data)
+        
        
             
         const { title, body, authorId,tags, category, subcategory,isDeleted,isPublished} = data
@@ -34,15 +35,15 @@ const createBlog = async function (req, res) {
         if (!body1) return res.status(400).send({ stats: true, msg: "enter valid body" })
 
         //===================================objectId validation===================
-        console.log(authorId)
-        // authorId = data.authorId
-        if (authorId===undefined) return res.status(400).send({ status: false, msg: "autorId is required" })
-        var isValid = mongoose.Types.ObjectId.isValid(authorId)
-        if (!isValid) return res.status(400).send({ status: false, msg: "Enter valid id" })
-        let id = await authorModel.findById({ _id: authorId})
-       if (!id) {
-            return res.status(404).send({ status: false, msg: "author is not present" })
-        }
+        // console.log(authorId)
+        // // authorId = data.authorId
+        // if (authorId===undefined) return res.status(400).send({ status: false, msg: "autorId is required" })
+        // var isValid = mongoose.Types.ObjectId.isValid(authorId)
+        // if (!isValid) return res.status(400).send({ status: false, msg: "Enter valid id" })
+    //     let id = await authorModel.findById({ _id: authorId})
+    //    if (!id) {
+    //         return res.status(404).send({ status: false, msg: "author is not present" })
+    //     }
 
         //====================================tags validation==========================
       
